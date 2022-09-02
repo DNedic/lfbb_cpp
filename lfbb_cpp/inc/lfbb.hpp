@@ -41,131 +41,80 @@
  **************************************************************/
 
 /************************** INCLUDE ***************************/
+#ifndef LFBB_HPP
+#define LFBB_HPP
 
-#ifndef LFBB_H
-#error "Please include the interface header: lfbb.h"
+#include <atomic>
+#include <cstdlib>
+
+/************************** DEFINE ****************************/
+
+#ifndef LFBB_MULTICORE_HOSTED
+#define LFBB_MULTICORE_HOSTED true
 #endif
 
-#include <algorithm>
+#ifndef LFBB_CACHELINE_LENGTH
+#define LFBB_CACHELINE_LENGTH 64U
+#endif
 
-/********************** PUBLIC METHODS ************************/
-
-template <typename T, size_t size>
-LfBb<T, size>::LfBb() : _r(0U), _w(0U), _i(0U), _read_wrapped(false) {}
-
-template <typename T, size_t size>
-T *LfBb<T, size>::WriteAcquire(const size_t free_required) {
-  /* Preload variables with adequate memory ordering */
-  const size_t w = _w.load(std::memory_order_relaxed);
-  const size_t r = _r.load(std::memory_order_acquire);
-
-  /* Early return if there is not enough total free space */
-  const size_t free = GetFree(w, r);
-  if (free_required > free) {
-    return nullptr;
-  }
-
-  /* Try to find enough linear space until the end of the buffer */
-  const size_t linear_space = size - r;
-  const size_t linear_free = std::min(free, linear_space);
-  if (free_required <= linear_free) {
-    return &_data[w];
-  }
-
-  /* If that doesn't work try from the beginning of the buffer */
-  if (free_required <= free - linear_free) {
-    return &_data[0];
-  }
-
-  /* Could not find free linear space with required size */
-  return nullptr;
-}
+/*************************** TYPES ****************************/
 
 template <typename T, size_t size>
-void LfBb<T, size>::WriteRelease(const size_t written) {
-  /* Preload variables with adequate memory ordering */
-  size_t w = _w.load(std::memory_order_relaxed);
-  size_t i = _i.load(std::memory_order_relaxed);
+class LfBb {
+  /********************** PUBLIC METHODS ************************/
+ public:
+  LfBb();
 
-  /* If the write wrapped set the invalidate index and reset write index*/
-  if (w + written >= size) {
-    i = w;
-    w = 0U;
-  }
-
-  /* Increment the write index and wrap to 0 if needed */
-  w += written;
-  if (w == size) {
-    w = 0U;
-  }
-
-  /* If we wrote over invalidated parts of the buffer move the invalidate
-   * index
+  /**
+   * @brief Acquires a linear region in the bipartite buffer for writing
+   * @param[in] Free linear space in the buffer required
+   * @retval Pointer to the beginning of the linear space
    */
-  if (w > i) {
-    i = w;
-  }
+  T *WriteAcquire(const size_t free_required);
 
-  /* Store the indexes with adequate memory ordering */
-  _i.store(i, std::memory_order_release);
-  _w.store(w, std::memory_order_release);
-}
+  /**
+   * @brief Releases the bipartite buffer after a write
+   * @param[in] Elements written to the linear space
+   * @retval None
+   */
+  void WriteRelease(const size_t written);
 
-template <typename T, size_t size>
-std::pair<T *, size_t> LfBb<T, size>::ReadAcquire() {
-  /* Preload variables with adequate memory ordering */
-  const size_t w = _w.load(std::memory_order_acquire);
-  const size_t i = _i.load(std::memory_order_acquire);
-  const size_t r = _r.load(std::memory_order_relaxed);
+  /**
+   * @brief Acquires a linear region in the bipartite buffer for reading
+   * @retval Pair containing the pointer to the beginning of the area and
+   * elements available
+   */
+  std::pair<T *, size_t> ReadAcquire();
 
-  /* When write and read indexes are equal, the buffer is empty */
-  if (w == r) {
-    return std::make_pair(nullptr, 0U);
-  }
+  /**
+   * @brief Releases the bipartite buffer after a read
+   * @param[in] Elements read from the linear region
+   * @retval None
+   */
+  void ReadRelease(const size_t read);
 
-  /* Simplest case, write index is ahead of read index */
-  if (w > r) {
-    return std::make_pair(&_data[r], w - r);
-  }
+  /********************* PRIVATE METHODS ************************/
+ private:
+  size_t GetFree(const size_t w, const size_t r) const;
 
-  /* Read index reached the invalidate index, make the read wrap */
-  if (r == i) {
-    _read_wrapped = true;
-    return std::make_pair(&_data[0], w);
-  }
+  /********************** PRIVATE MEMBERS ***********************/
+  T _data[size]; /**< Data array */
+#ifdef LFBB_MULTICORE_HOSTED
+  alignas(LFBB_CACHELINE_LENGTH) std::atomic_size_t _r; /**< Read index */
+  alignas(LFBB_CACHELINE_LENGTH) std::atomic_size_t _w; /**< Write index */
+  alignas(LFBB_CACHELINE_LENGTH)
+      std::atomic_size_t _i; /**< Invalidated space index */
+#else
+  std::atomic_size_t _r; /**< Read index */
+  std::atomic_size_t _w; /**< Write index */
+  std::atomic_size_t _i; /**< Invalidated space index */
+#endif
+  bool _read_wrapped; /**< Write wrapped flag */
+};
 
-  /* There is some data until the invalidate index */
-  return std::make_pair(&_data[r], i - r);
-}
+/************************** INCLUDE ***************************/
 
-template <typename T, size_t size>
-void LfBb<T, size>::ReadRelease(const size_t read) {
-  /* Preload variables with adequate memory ordering */
-  size_t r = _r.load(std::memory_order_relaxed);
+/* Include the implementation */
+#include "lfbb_impl.hpp"
 
-  /* If the read wrapped, overflow the read index */
-  if (_read_wrapped) {
-    _read_wrapped = false;
-    r = 0U;
-  }
-
-  /* Increment the read index and wrap to 0 if needed */
-  r += read;
-  if (r == size) {
-    r = 0U;
-  }
-
-  /* Store the indexes with adequate memory ordering */
-  _r.store(r, std::memory_order_release);
-}
-
-/********************* PRIVATE METHODS ************************/
-
-template <typename T, size_t size>
-size_t LfBb<T, size>::GetFree(const size_t w, const size_t r) const {
-  if (r > w) {
-    return (r - w) - 1U;
-  } else {
-    return (size - (w - r)) - 1U;
-  }
-}
+#endif /* LFBB_HPP */

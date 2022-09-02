@@ -1,6 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 
-#include "lfbb.h"
+#include "lfbb.hpp"
 
 TEST_CASE("Write to the beginning", "[write_beginning]") {
   LfBb<uint8_t, 512U> lfbb;
