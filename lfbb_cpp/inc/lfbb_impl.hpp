@@ -55,15 +55,11 @@ T *LfBb<T, size>::WriteAcquire(const size_t free_required) {
   const size_t w = _w.load(std::memory_order_relaxed);
   const size_t r = _r.load(std::memory_order_acquire);
 
-  /* Early return if there is not enough total free space */
   const size_t free = GetFree(w, r);
-  if (free_required > free) {
-    return nullptr;
-  }
-
-  /* Try to find enough linear space until the end of the buffer */
   const size_t linear_space = size - r;
   const size_t linear_free = std::min(free, linear_space);
+
+  /* Try to find enough linear space until the end of the buffer */
   if (free_required <= linear_free) {
     return &_data[w];
   }
