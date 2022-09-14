@@ -114,13 +114,13 @@ std::pair<T *, size_t> LfBb<T, size>::ReadAcquire() {
   const size_t i = _i.load(std::memory_order_acquire);
   const size_t r = _r.load(std::memory_order_relaxed);
 
-  /* When write and read indexes are equal, the buffer is empty */
-  if (w == r) {
+  /* When read and write indexes are equal, the buffer is empty */
+  if (r == w) {
     return std::make_pair(nullptr, 0U);
   }
 
-  /* Simplest case, write index is ahead of read index */
-  if (w > r) {
+  /* Simplest case, read index is behind the write index */
+  if (r < w) {
     return std::make_pair(&_data[r], w - r);
   }
 
