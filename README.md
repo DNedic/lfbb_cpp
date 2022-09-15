@@ -77,6 +77,3 @@ When using the library with DMA or multicore on embedded systems with cache it i
 * Using platform specific data synchronization barriers (```DSB``` on ARM)
 * By manually invalidating cache
 * By setting the MPU/MMU up to not cache the data buffer
-
-## Caveats
-* The library does not implement alignment of writes and reads, it is up to the user to only write in factors they want the data to be aligned to, adequately size and align the buffer used
