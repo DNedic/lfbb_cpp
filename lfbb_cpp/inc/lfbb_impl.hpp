@@ -66,6 +66,7 @@ T *LfBb<T, size>::WriteAcquire(const size_t free_required) {
 
   /* If that doesn't work try from the beginning of the buffer */
   if (free_required <= free - linear_free) {
+    _write_wrapped = true;
     return &_data[0];
   }
 
@@ -80,7 +81,8 @@ void LfBb<T, size>::WriteRelease(const size_t written) {
   size_t i = _i.load(std::memory_order_relaxed);
 
   /* If the write wrapped set the invalidate index and reset write index*/
-  if (w + written >= size) {
+  if (_write_wrapped) {
+    _write_wrapped = false;
     i = w;
     w = 0U;
   }

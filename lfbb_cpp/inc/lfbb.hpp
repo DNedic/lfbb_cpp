@@ -109,7 +109,8 @@ class LfBb {
   std::atomic_size_t _w; /**< Write index */
   std::atomic_size_t _i; /**< Invalidated space index */
 #endif
-  bool _read_wrapped; /**< Write wrapped flag */
+  bool _write_wrapped; /**< Write wrapped flag, used only in the producer */
+  bool _read_wrapped;  /**< Read wrapped flag, used only in the consumer */
 };
 
 /************************** INCLUDE ***************************/
