@@ -5,7 +5,7 @@ LFBB_CPP is the C++ version of [LFBB](https://github.com/DNedic/lfbb), a biparti
 
 ## What is a bipartite buffer
 
-A bipartite buffer is a variation of the classic [ring buffer](https://en.wikipedia.org/wiki/Circular_buffer) with the ability to always be able to provide the user with contigous memory regions inside the buffer for writing/reading if there is enough space/data.
+A bipartite buffer is a variation of the classic [ring buffer](https://en.wikipedia.org/wiki/Circular_buffer) with the ability to always be able to provide the user with contigous memory regions for writing/reading if there is enough space/data.
 [Here](https://www.codeproject.com/Articles/3479/The-Bip-Buffer-The-Circular-Buffer-with-a-Twist) is a nice writeup about the essence of bipartite buffers.
 
 ## Why use a bipartite buffer
@@ -18,10 +18,10 @@ A bipartite buffer should be used everywhere a ring buffer is used if you want:
 
 ## Features
 * Written in standard C++11, compatible with all platforms supporting it
-* Lock free thread and multicore safe when used in single producer single consumer scenarios
+* Lock free thread and multicore safe in single producer single consumer scenarios
 * No dynamic allocation
+* Optimized for high performance
 * MIT Licensed
-* Supports CMake [FetchContent()](https://cmake.org/cmake/help/latest/module/FetchContent.html)
 
 ## Advantages over the C version
 * Type safety, the buffer is type and size templated
@@ -50,9 +50,9 @@ if (read.first != nullptr) {
 * Producer thread/interrupt
 ```cpp
 if (!write_started) {
-  auto *write_location = lfbb_adc.WriteAcquire(data.size());
-  if (write_location != nullptr) {
-    ADC_StartDma(&adc_dma_h, write_location, sizeof(data));
+  auto *write_ptr = lfbb_adc.WriteAcquire(data.size());
+  if (write_ptr != nullptr) {
+    ADC_StartDma(&adc_dma_h, write_ptr, sizeof(data));
     write_started = true;
   }
 } else {
