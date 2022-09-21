@@ -47,7 +47,8 @@
 /********************** PUBLIC METHODS ************************/
 
 template <typename T, size_t size>
-LfBb<T, size>::LfBb() : _r(0U), _w(0U), _i(0U), _write_wrapped(false), _read_wrapped(false) {}
+LfBb<T, size>::LfBb()
+    : _r(0U), _w(0U), _i(0U), _write_wrapped(false), _read_wrapped(false) {}
 
 template <typename T, size_t size>
 T *LfBb<T, size>::WriteAcquire(const size_t free_required) {
