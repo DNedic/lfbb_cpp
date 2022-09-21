@@ -95,7 +95,7 @@ class LfBb {
 
   /********************* PRIVATE METHODS ************************/
  private:
-  size_t GetFree(const size_t w, const size_t r) const;
+  static size_t GetFree(const size_t w, const size_t r);
 
   /********************** PRIVATE MEMBERS ***********************/
   T _data[size]; /**< Data array */

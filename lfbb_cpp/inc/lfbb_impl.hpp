@@ -157,7 +157,7 @@ void LfBb<T, size>::ReadRelease(const size_t read) {
 /********************* PRIVATE METHODS ************************/
 
 template <typename T, size_t size>
-size_t LfBb<T, size>::GetFree(const size_t w, const size_t r) const {
+size_t LfBb<T, size>::GetFree(const size_t w, const size_t r) {
   if (r > w) {
     return (r - w) - 1U;
   } else {
