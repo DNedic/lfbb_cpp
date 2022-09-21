@@ -99,7 +99,7 @@ class LfBb {
 
   /********************** PRIVATE MEMBERS ***********************/
   T _data[size]; /**< Data array */
-#ifdef LFBB_MULTICORE_HOSTED
+#if LFBB_MULTICORE_HOSTED
   alignas(LFBB_CACHELINE_LENGTH) std::atomic_size_t _r; /**< Read index */
   alignas(LFBB_CACHELINE_LENGTH) std::atomic_size_t _w; /**< Write index */
   alignas(LFBB_CACHELINE_LENGTH)
