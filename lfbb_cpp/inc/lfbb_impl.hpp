@@ -4,7 +4,7 @@
  * c++11 suitable for both low-end microcontrollers all the way
  * to HPC machines. Lock-free for single consumer single
  * producer scenarios.
- * @version	1.0.3
+ * @version	1.1.0
  * @date 21. September 2022
  * @author Djordje Nedic
  **************************************************************/
@@ -37,7 +37,7 @@
  * This file is part of LFBB_CPP - Lock Free Bipartite Buffer
  *
  * Author:          Djordje Nedic <nedic.djordje2@gmail.com>
- * Version:         v1.0.3
+ * Version:         v1.1.0
  **************************************************************/
 
 /************************** INCLUDE ***************************/

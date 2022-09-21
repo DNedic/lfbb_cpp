@@ -16,3 +16,7 @@
 ## 1.0.3
 
 - Fix bug where _write_wrapped was not initialized
+
+## 1.1.0
+
+- Set ```LFBB_MULTICORE_HOSTED``` to ```false``` by default. This is a more embedded-friendly configuration which doesn't impact hosted platforms performance significantly if the library is left unconfigured but avoids wasting space on embedded devices. When using the library on hosted platforms passing ```LFBB_MULTICORE_HOSTED``` as ```true``` is now advised for maximum performance.

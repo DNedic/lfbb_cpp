@@ -4,7 +4,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 project(lfbb_cpp
-  VERSION 1.0.3
+  VERSION 1.1.0
   LANGUAGES CXX
 )
 
