@@ -12,3 +12,7 @@
 ## 1.0.2
 
 - Improved performance by using a flag instead of infering write wraps
+
+## 1.0.3
+
+- Fix bug where _write_wrapped was not initialized
