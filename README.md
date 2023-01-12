@@ -42,24 +42,24 @@ Shown here is an example of typical use:
 auto read = lfbb_adc.ReadAcquire();
 
 if (read.first != nullptr) {
-  size_t data_used = DoStuffWithData(read);
-  lfbb_adc.ReadRelease(data_used);
+    size_t data_used = DoStuffWithData(read);
+    lfbb_adc.ReadRelease(data_used);
 }
 ```
 
 * Producer thread/interrupt
 ```cpp
 if (!write_started) {
-  auto *write_ptr = lfbb_adc.WriteAcquire(data.size());
-  if (write_ptr != nullptr) {
-    ADC_StartDma(&adc_dma_h, write_ptr, sizeof(data));
-    write_started = true;
-  }
+    auto *write_ptr = lfbb_adc.WriteAcquire(data.size());
+    if (write_ptr != nullptr) {
+        ADC_StartDma(&adc_dma_h, write_ptr, sizeof(data));
+        write_started = true;
+    }
 } else {
-  if (ADC_PollDmaComplete(&adc_dma_h) {
-    lfbb_adc.WriteRelease(data.size());
-    write_started = false;
-  }
+    if (ADC_PollDmaComplete(&adc_dma_h) {
+        lfbb_adc.WriteRelease(data.size());
+        write_started = false;
+    }
 }
 ```
 

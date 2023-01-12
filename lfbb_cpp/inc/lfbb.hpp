@@ -59,58 +59,57 @@
 
 /*************************** TYPES ****************************/
 
-template <typename T, size_t size>
-class LfBb {
-  /********************** PUBLIC METHODS ************************/
- public:
-  LfBb();
+template <typename T, size_t size> class LfBb {
+    /********************** PUBLIC METHODS ************************/
+  public:
+    LfBb();
 
-  /**
-   * @brief Acquires a linear region in the bipartite buffer for writing
-   * @param[in] Free linear space in the buffer required
-   * @retval Pointer to the beginning of the linear space
-   */
-  T *WriteAcquire(const size_t free_required);
+    /**
+     * @brief Acquires a linear region in the bipartite buffer for writing
+     * @param[in] Free linear space in the buffer required
+     * @retval Pointer to the beginning of the linear space
+     */
+    T *WriteAcquire(const size_t free_required);
 
-  /**
-   * @brief Releases the bipartite buffer after a write
-   * @param[in] Elements written to the linear space
-   * @retval None
-   */
-  void WriteRelease(const size_t written);
+    /**
+     * @brief Releases the bipartite buffer after a write
+     * @param[in] Elements written to the linear space
+     * @retval None
+     */
+    void WriteRelease(const size_t written);
 
-  /**
-   * @brief Acquires a linear region in the bipartite buffer for reading
-   * @retval Pair containing the pointer to the beginning of the area and
-   * elements available
-   */
-  std::pair<T *, size_t> ReadAcquire();
+    /**
+     * @brief Acquires a linear region in the bipartite buffer for reading
+     * @retval Pair containing the pointer to the beginning of the area and
+     * elements available
+     */
+    std::pair<T *, size_t> ReadAcquire();
 
-  /**
-   * @brief Releases the bipartite buffer after a read
-   * @param[in] Elements read from the linear region
-   * @retval None
-   */
-  void ReadRelease(const size_t read);
+    /**
+     * @brief Releases the bipartite buffer after a read
+     * @param[in] Elements read from the linear region
+     * @retval None
+     */
+    void ReadRelease(const size_t read);
 
-  /********************* PRIVATE METHODS ************************/
- private:
-  static size_t GetFree(const size_t w, const size_t r);
+    /********************* PRIVATE METHODS ************************/
+  private:
+    static size_t GetFree(const size_t w, const size_t r);
 
-  /********************** PRIVATE MEMBERS ***********************/
-  T _data[size]; /**< Data array */
+    /********************** PRIVATE MEMBERS ***********************/
+    T _data[size]; /**< Data array */
 #if LFBB_MULTICORE_HOSTED
-  alignas(LFBB_CACHELINE_LENGTH) std::atomic_size_t _r; /**< Read index */
-  alignas(LFBB_CACHELINE_LENGTH) std::atomic_size_t _w; /**< Write index */
-  alignas(LFBB_CACHELINE_LENGTH)
-      std::atomic_size_t _i; /**< Invalidated space index */
+    alignas(LFBB_CACHELINE_LENGTH) std::atomic_size_t _r; /**< Read index */
+    alignas(LFBB_CACHELINE_LENGTH) std::atomic_size_t _w; /**< Write index */
+    alignas(LFBB_CACHELINE_LENGTH)
+        std::atomic_size_t _i; /**< Invalidated space index */
 #else
-  std::atomic_size_t _r; /**< Read index */
-  std::atomic_size_t _w; /**< Write index */
-  std::atomic_size_t _i; /**< Invalidated space index */
+    std::atomic_size_t _r; /**< Read index */
+    std::atomic_size_t _w; /**< Write index */
+    std::atomic_size_t _i; /**< Invalidated space index */
 #endif
-  bool _write_wrapped; /**< Write wrapped flag, used only in the producer */
-  bool _read_wrapped;  /**< Read wrapped flag, used only in the consumer */
+    bool _write_wrapped; /**< Write wrapped flag, used only in the producer */
+    bool _read_wrapped;  /**< Read wrapped flag, used only in the consumer */
 };
 
 /************************** INCLUDE ***************************/
