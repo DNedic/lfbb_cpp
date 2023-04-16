@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include <catch2/catch_test_macros.hpp>
 
 #include "lfbb.hpp"
@@ -10,7 +12,7 @@ TEST_CASE("Write to the beginning", "[write_beginning]") {
       lfbb.WriteAcquire(sizeof(test_data) / sizeof(test_data[0]));
   REQUIRE(write_location != nullptr);
 
-  memcpy(write_location, test_data, sizeof(test_data));
+  std::copy(std::begin(test_data), std::end(test_data), write_location);
 
   lfbb.WriteRelease(sizeof(test_data) / sizeof(test_data[0]));
 
@@ -42,7 +44,7 @@ TEST_CASE("Write with overflow condition", "[write_overflow]") {
   /* Write to the start and read the data back */
   auto *write_location =
       lfbb.WriteAcquire(sizeof(test_data) / sizeof(test_data[0]));
-  memcpy(write_location, test_data, sizeof(test_data));
+  std::copy(std::begin(test_data), std::end(test_data), write_location);
   lfbb.WriteRelease(sizeof(test_data) / sizeof(test_data[0]));
 
   auto read = lfbb.ReadAcquire();
@@ -54,7 +56,7 @@ TEST_CASE("Write with overflow condition", "[write_overflow]") {
   write_location =
       lfbb.WriteAcquire(sizeof(test_data2) / sizeof(test_data2[0]));
   REQUIRE(write_location != nullptr);
-  memcpy(write_location, test_data2, sizeof(test_data2));
+  std::copy(std::begin(test_data2), std::end(test_data2), write_location);
   lfbb.WriteRelease(sizeof(test_data2) / sizeof(test_data[0]));
 
   read = lfbb.ReadAcquire();
@@ -71,7 +73,7 @@ TEST_CASE("Read data written after overflow condition write",
   /* Write to the start and read the data back */
   auto *write_location =
       lfbb.WriteAcquire(sizeof(test_data) / sizeof(test_data[0]));
-  memcpy(write_location, test_data, sizeof(test_data));
+  std::copy(std::begin(test_data), std::end(test_data), write_location);
   lfbb.WriteRelease(sizeof(test_data) / sizeof(test_data[0]));
 
   auto read = lfbb.ReadAcquire();
@@ -82,7 +84,7 @@ TEST_CASE("Read data written after overflow condition write",
   const int16_t test_data2[240] = {-66};
   write_location =
       lfbb.WriteAcquire(sizeof(test_data2) / sizeof(test_data2[0]));
-  memcpy(write_location, test_data2, sizeof(test_data2));
+  std::copy(std::begin(test_data2), std::end(test_data2), write_location);
   lfbb.WriteRelease(sizeof(test_data2) / sizeof(test_data2[0]));
 
   read = lfbb.ReadAcquire();
@@ -92,7 +94,7 @@ TEST_CASE("Read data written after overflow condition write",
   const uint8_t test_data3[120] = {0xBCU};
   write_location =
       lfbb.WriteAcquire(sizeof(test_data3) / sizeof(test_data3[0]));
-  memcpy(write_location, test_data3, sizeof(test_data3));
+  std::copy(std::begin(test_data3), std::end(test_data3), write_location);
   lfbb.WriteRelease(sizeof(test_data3) / sizeof(test_data3[0]));
 
   read = lfbb.ReadAcquire();
@@ -109,7 +111,7 @@ TEST_CASE("Interleaved write and read with enough space",
   /* 1. Complete write */
   auto *write_location =
       lfbb.WriteAcquire(sizeof(test_data) / sizeof(test_data[0]));
-  memcpy(write_location, test_data, sizeof(test_data));
+  std::copy(std::begin(test_data), std::end(test_data), write_location);
   lfbb.WriteRelease(sizeof(test_data) / sizeof(test_data[0]));
 
   /* 2. Read acquire, the linear space previously written is reserved for
@@ -122,7 +124,7 @@ TEST_CASE("Interleaved write and read with enough space",
   write_location =
       lfbb.WriteAcquire(sizeof(test_data2) / sizeof(test_data2[0]));
   REQUIRE(write_location != nullptr);
-  memcpy(write_location, test_data2, sizeof(test_data2));
+  std::copy(std::begin(test_data2), std::end(test_data2), write_location);
 
   /* 4. Compare the data */
   REQUIRE(memcmp(test_data, read.first, sizeof(test_data)) == 0U);
@@ -136,14 +138,14 @@ TEST_CASE("Interleaved write and read with enough space 2",
   /* 1. Complete write */
   auto *write_location =
       lfbb.WriteAcquire(sizeof(test_data) / sizeof(test_data[0]));
-  memcpy(write_location, test_data, sizeof(test_data));
+  std::copy(std::begin(test_data), std::end(test_data), write_location);
   lfbb.WriteRelease(sizeof(test_data) / sizeof(test_data[0]));
 
   /* 2. Write acquire, a linear space after the read linear space is reserved
    * for writing and is copied to*/
   const char test_data2[120] = {'b'};
   write_location = lfbb.WriteAcquire(sizeof(test_data2) / sizeof(test_data2));
-  memcpy(write_location, test_data2, sizeof(test_data2));
+  std::copy(std::begin(test_data2), std::end(test_data2), write_location);
 
   /* 3. Read acquire, the linear space previously written is reserved for
    * reading now */
@@ -160,7 +162,7 @@ TEST_CASE("Interleaved write and read without enough space",
   /* 1. Complete write */
   auto *write_location =
       lfbb.WriteAcquire(sizeof(test_data) / sizeof(test_data[0]));
-  memcpy(write_location, test_data, sizeof(test_data));
+  std::copy(std::begin(test_data), std::end(test_data), write_location);
   lfbb.WriteRelease(sizeof(test_data) / sizeof(test_data[0]));
 
   /* 2. Read acquire, the linear space previously written is reserved for
