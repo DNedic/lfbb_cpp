@@ -20,7 +20,7 @@ TEST_CASE("Write to the beginning", "[write_beginning]") {
 
   REQUIRE(read.first != nullptr);
   REQUIRE(read.second == sizeof(test_data));
-  REQUIRE(memcmp(test_data, read.first, sizeof(test_data)) == 0);
+  REQUIRE(std::equal(std::begin(test_data), std::end(test_data), read.first));
 }
 
 TEST_CASE("Try to acquire too much data", "[acquire_too_much]") {
@@ -62,7 +62,7 @@ TEST_CASE("Write with overflow condition", "[write_overflow]") {
   read = lfbb.ReadAcquire();
   REQUIRE(read.first != nullptr);
   REQUIRE(read.second == sizeof(test_data2) / sizeof(test_data2[0]));
-  REQUIRE(memcmp(test_data2, read.first, sizeof(test_data2)) == 0);
+  REQUIRE(std::equal(std::begin(test_data2), std::end(test_data2), read.first));
 }
 
 TEST_CASE("Read data written after overflow condition write",
@@ -100,7 +100,7 @@ TEST_CASE("Read data written after overflow condition write",
   read = lfbb.ReadAcquire();
   REQUIRE(read.first != nullptr);
   REQUIRE(read.second == sizeof(test_data3));
-  REQUIRE(memcmp(test_data3, read.first, sizeof(test_data3)) == 0);
+  REQUIRE(std::equal(std::begin(test_data3), std::end(test_data3), read.first));
 }
 
 TEST_CASE("Interleaved write and read with enough space",
@@ -127,7 +127,7 @@ TEST_CASE("Interleaved write and read with enough space",
   std::copy(std::begin(test_data2), std::end(test_data2), write_location);
 
   /* 4. Compare the data */
-  REQUIRE(memcmp(test_data, read.first, sizeof(test_data)) == 0U);
+  REQUIRE(std::equal(std::begin(test_data), std::end(test_data), read.first));
 }
 
 TEST_CASE("Interleaved write and read with enough space 2",
@@ -151,7 +151,7 @@ TEST_CASE("Interleaved write and read with enough space 2",
    * reading now */
   auto read = lfbb.ReadAcquire();
   REQUIRE(read.first != nullptr);
-  REQUIRE(memcmp(test_data, read.first, sizeof(test_data)) == 0U);
+  REQUIRE(std::equal(std::begin(test_data), std::end(test_data), read.first));
 }
 
 TEST_CASE("Interleaved write and read without enough space",
