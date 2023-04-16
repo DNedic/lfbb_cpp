@@ -173,3 +173,24 @@ TEST_CASE("Interleaved write and read without enough space",
       lfbb.WriteAcquire(sizeof(test_data2) / sizeof(test_data2[0]));
   REQUIRE(write_location == nullptr);
 }
+
+TEST_CASE("Test keeping the chunk of data when write ends exactly in the end of the buffer.",
+          "[exact_end_write_release_proper_invalidation_test]") {
+  constexpr size_t size = 8;
+  LfBb<uint8_t, size * 2> lfbb;
+
+  // First half, no overflow.
+  auto base = lfbb.WriteAcquire(size);
+  lfbb.WriteRelease(size);
+  lfbb.ReadAcquire();
+  lfbb.ReadRelease(size);
+
+  // Second half, write overflow.
+  auto write_buf_second_half = lfbb.WriteAcquire(size);
+  lfbb.WriteRelease(size);
+
+  // Second half, read overflow.
+  auto read_buf_second_half = lfbb.ReadAcquire().first;
+  REQUIRE((read_buf_second_half - base) == (write_buf_second_half - base));
+}
+
