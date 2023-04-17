@@ -104,3 +104,24 @@ When using the library with DMA or multicore on embedded systems with cache it i
 * Using platform specific data synchronization barriers (```DSB``` on ARM)
 * By manually invalidating cache
 * By setting the MPU/MMU up to not cache the data buffer
+
+### Debug tracing
+To debug this library you may want to enable debug tracing. It requires 2 symbols:
+* `LFBB_TRACE` macro (it is essential it to be a macro since it is used in `#ifdef`s) implementing printing strings into a debug log, like
+
+```c++
+#include <iostream>
+#define LFBB_TRACE lfbb_trace
+inline void lfbb_trace(const std::string &str){
+    std::cerr << str; // no std::endl is needed, linefeeds are included
+}
+```
+
+and
+
+* a formatter function `LFBB_FORMATTER` matching `std::format` signature, like
+```c++
+#include <fmt/core.h>
+#define LFBB_FORMATTER fmt::format
+```
+.

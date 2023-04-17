@@ -35,7 +35,6 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  * This file is part of LFBB_CPP - Lock Free Bipartite Buffer
- *
  * Author:          Djordje Nedic <nedic.djordje2@gmail.com>
  * Version:         v1.2.0
  **************************************************************/
@@ -60,18 +59,32 @@ T *LfBb<T, size>::WriteAcquire(const size_t free_required) {
     const size_t linear_space = size - r;
     const size_t linear_free = std::min(free, linear_space);
 
-    /* Try to find enough linear space until the end of the buffer */
+#ifdef LFBB_TRACE
+    LFBB_TRACE(LFBB_FORMATTER("{} (free_required={}) linear_free {} "
+                              "free_required <= linear_free {}\n",
+                              __func__, free_required, linear_free,
+                              (free_required <= linear_free)));
+#endif
+
     if (free_required <= linear_free) {
+#ifdef LFBB_TRACE
+        LFBB_TRACE("Found enough linear space until the end of the buffer\n");
+#endif
         return &_data[w];
     }
 
-    /* If that doesn't work try from the beginning of the buffer */
     if (free_required <= free - linear_free) {
+#ifdef LFBB_TRACE
+        LFBB_TRACE("Not found enough linear space until the end, try from the "
+                   "beginning of the buffer. .wrapped = true\n");
+#endif
         _write_wrapped = true;
         return &_data[0];
     }
 
-    /* Could not find free linear space with required size */
+#ifdef LFBB_TRACE
+    LFBB_TRACE("Could not find free linear space with required size\n");
+#endif
     return nullptr;
 }
 
@@ -81,25 +94,39 @@ void LfBb<T, size>::WriteRelease(const size_t written) {
     size_t w = _w.load(std::memory_order_relaxed);
     size_t i = _i.load(std::memory_order_relaxed);
 
-    /* If the write wrapped set the invalidate index and reset write index*/
+#ifdef LFBB_TRACE
+    LFBB_TRACE(
+        LFBB_FORMATTER("{}(written={}) _write_wrapped {} w {} i {} size {}\n",
+                       __func__, written, _write_wrapped, w, i, size));
+#endif
+
     if (_write_wrapped) {
+#ifdef LFBB_TRACE
+        LFBB_TRACE("If the write wrapped set the invalidate index and reset "
+                   "write index _write_wrapped = false\n");
+#endif
         _write_wrapped = false;
         i = w;
         w = 0U;
     }
 
-    // Increment the write index
     w += written;
+#ifdef LFBB_TRACE
+    LFBB_TRACE(LFBB_FORMATTER("Incremented the write index, w={}\n", w));
+#endif
 
-    /* If we wrote over invalidated parts of the buffer move the invalidate
-     * index
-     */
     if (w > i) {
+#ifdef LFBB_TRACE
+        LFBB_TRACE("We wrote over invalidated parts of the buffer move the "
+                   "invalidate index\n");
+#endif
         i = w;
     }
 
-    // Wrap to 0 if needed
     if (w == size) {
+#ifdef LFBB_TRACE
+        LFBB_TRACE("wrap to 0\n");
+#endif
         w = 0U;
     }
 
@@ -115,23 +142,37 @@ std::pair<T *, size_t> LfBb<T, size>::ReadAcquire() {
     const size_t i = _i.load(std::memory_order_acquire);
     const size_t r = _r.load(std::memory_order_relaxed);
 
-    /* When read and write indexes are equal, the buffer is empty */
+#ifdef LFBB_TRACE
+    LFBB_TRACE(LFBB_FORMATTER("{}() r {} w {}\n", __func__, r, w));
+#endif
+
     if (r == w) {
+#ifdef LFBB_TRACE
+        LFBB_TRACE(
+            "When read and write indexes are equal, the buffer is empty\n");
+#endif
         return std::make_pair(nullptr, 0U);
     }
 
-    /* Simplest case, read index is behind the write index */
     if (r < w) {
+#ifdef LFBB_TRACE
+        LFBB_TRACE("Simplest case, read index is behind the write index\n");
+#endif
         return std::make_pair(&_data[r], w - r);
     }
 
-    /* Read index reached the invalidate index, make the read wrap */
     if (r == i) {
+#ifdef LFBB_TRACE
+        LFBB_TRACE(
+            "Read index reached the invalidate index, make the read wrap\n");
+#endif
         _read_wrapped = true;
         return std::make_pair(&_data[0], w);
     }
 
-    /* There is some data until the invalidate index */
+#ifdef LFBB_TRACE
+    LFBB_TRACE("There is some data until the invalidate index\n");
+#endif
     return std::make_pair(&_data[r], i - r);
 }
 
@@ -140,15 +181,27 @@ void LfBb<T, size>::ReadRelease(const size_t read) {
     /* Preload variables with adequate memory ordering */
     size_t r = _r.load(std::memory_order_relaxed);
 
-    /* If the read wrapped, overflow the read index */
+#ifdef LFBB_TRACE
+    LFBB_TRACE(LFBB_FORMATTER("{}(read={}) _read_wrapped {} r {} size {}\n",
+                              __func__, read, _read_wrapped, r, size));
+#endif
+
     if (_read_wrapped) {
+#ifdef LFBB_TRACE
+        LFBB_TRACE("The read wrapped, overflow the read index\n");
+#endif
         _read_wrapped = false;
         r = 0U;
     }
 
-    /* Increment the read index and wrap to 0 if needed */
     r += read;
+#ifdef LFBB_TRACE
+    LFBB_TRACE(LFBB_FORMATTER("Incremented the read index, r={}\n", r));
+#endif
     if (r == size) {
+#ifdef LFBB_TRACE
+        LFBB_TRACE("wrap to 0\n");
+#endif
         r = 0U;
     }
 
