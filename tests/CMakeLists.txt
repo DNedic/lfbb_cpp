@@ -5,6 +5,8 @@ cmake_minimum_required(VERSION 3.16)
 
 Include(FetchContent)
 
+set(CMAKE_CXX_STANDARD 20)  # not required
+
 FetchContent_Declare(
     Catch2
     GIT_REPOSITORY https://github.com/catchorg/Catch2.git

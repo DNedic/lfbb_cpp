@@ -47,6 +47,10 @@
 #include <atomic>
 #include <cstdlib>
 
+#if __cplusplus >= 202002L
+#include <span>
+#endif
+
 /************************** DEFINE ****************************/
 
 #ifndef LFBB_MULTICORE_HOSTED
@@ -71,12 +75,30 @@ template <typename T, size_t size> class LfBb {
      */
     T *WriteAcquire(const size_t free_required);
 
+    #if __cplusplus >= 202002L
+    /**
+     * @brief Acquires a linear region in the bipartite buffer for writing
+     * @param[in] Free linear space in the buffer required
+     * @retval Span of the linear space
+     */
+    std::span<T> WriteAcquireSpan(const size_t free_required);
+    #endif
+
     /**
      * @brief Releases the bipartite buffer after a write
      * @param[in] Elements written to the linear space
      * @retval None
      */
     void WriteRelease(const size_t written);
+
+    #if __cplusplus >= 202002L
+    /**
+     * @brief Releases the bipartite buffer after a write
+     * @param[in] Span of the linear space
+     * @retval None
+     */
+    void WriteRelease(const std::span<T> written);
+    #endif
 
     /**
      * @brief Acquires a linear region in the bipartite buffer for reading
@@ -85,12 +107,29 @@ template <typename T, size_t size> class LfBb {
      */
     std::pair<T *, size_t> ReadAcquire();
 
+    #if __cplusplus >= 202002L
+    /**
+     * @brief Acquires a linear region in the bipartite buffer for reading
+     * @retval Span of the linear space
+     */
+    std::span<T> ReadAcquireSpan();
+    #endif
+
     /**
      * @brief Releases the bipartite buffer after a read
      * @param[in] Elements read from the linear region
      * @retval None
      */
     void ReadRelease(const size_t read);
+
+    #if __cplusplus >= 202002L
+    /**
+     * @brief Releases the bipartite buffer after a read
+     * @param[in] Span of the linear space
+     * @retval None
+     */
+    void ReadRelease(const std::span<T> read);
+    #endif
 
     /********************* PRIVATE METHODS ************************/
   private:
