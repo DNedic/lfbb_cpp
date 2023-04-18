@@ -24,3 +24,7 @@
 ## 1.1.1
 
 - A critical bug where valid data would be invalidated if the write ended exactly on the end of the buffer was fixed - [@KOLANICH](https://github.com/KOLANICH)
+
+## 1.2.0
+
+- A `std::span` based API was added in addition to the regular one that can be used with C++20 and up
