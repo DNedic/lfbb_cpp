@@ -196,3 +196,39 @@ TEST_CASE("Test keeping the chunk of data when write ends exactly in the end of 
   REQUIRE((read_buf_second_half - base) == (write_buf_second_half - base));
 }
 
+TEST_CASE("std::span API test", "[std_span_api]") {
+  LfBb<double, 512U> lfbb;
+
+  auto write_ptr = lfbb.WriteAcquire(320);
+  lfbb.WriteRelease(0);
+
+  auto write_span = lfbb.WriteAcquireSpan(320);
+
+  REQUIRE(write_ptr == write_span.data());
+
+  lfbb.WriteRelease(write_span);
+
+  auto read_pair = lfbb.ReadAcquire();
+  lfbb.ReadRelease(0);
+
+  auto read_span = lfbb.ReadAcquireSpan();
+
+  REQUIRE(read_pair.first == read_span.data());
+
+  lfbb.ReadRelease(read_span);
+
+  write_ptr = lfbb.WriteAcquire(120);
+  lfbb.WriteRelease(0);
+
+  write_span = lfbb.WriteAcquireSpan(120);
+  
+  REQUIRE(write_ptr == write_span.data());
+
+  lfbb.WriteRelease(write_span);
+
+  read_pair = lfbb.ReadAcquire();
+  lfbb.ReadRelease(0);
+  read_span = lfbb.ReadAcquireSpan();
+
+  REQUIRE(read_pair.first == read_span.data());
+}

@@ -15,6 +15,9 @@ FetchContent_MakeAvailable(Catch2)
 
 add_executable(tests tests.cpp)
 
+# Required in order to test the std::span API as well
+target_compile_features(tests PRIVATE cxx_std_20)
+
 target_link_libraries(tests
 PRIVATE
     ${PROJECT_NAME}

@@ -156,6 +156,35 @@ void LfBb<T, size>::ReadRelease(const size_t read) {
     _r.store(r, std::memory_order_release);
 }
 
+/********************** std::span API *************************/
+#if __cplusplus >= 202002L
+template <typename T, size_t size>
+std::span<T> LfBb<T, size>::WriteAcquireSpan(const size_t free_required) {
+    auto res = WriteAcquire(free_required);
+    if (res) {
+        return {res, free_required};
+    } else {
+        return {res, 0};
+    }
+}
+
+template <typename T, size_t size>
+std::span<T> LfBb<T, size>::ReadAcquireSpan() {
+    auto res = ReadAcquire();
+    return {res.first, res.second};
+}
+
+template <typename T, size_t size>
+void LfBb<T, size>::WriteRelease(const std::span<T> written) {
+    WriteRelease(written.size());
+}
+
+template <typename T, size_t size>
+void LfBb<T, size>::ReadRelease(const std::span<T> read) {
+    ReadRelease(read.size());
+}
+#endif
+
 /********************* PRIVATE METHODS ************************/
 
 template <typename T, size_t size>
