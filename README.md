@@ -63,6 +63,32 @@ if (!write_started) {
 }
 ```
 
+There is also a `std::span` based API for those using C++20 and up:
+```cpp
+auto read = lfbb_adc.ReadAcquireSpan();
+
+if (!read.empty())) {
+    auto span_used = DoStuffWithData(read);
+    lfbb_adc.ReadRelease(span_used);
+}
+```
+
+* Producer thread/interrupt
+```cpp
+if (!write_started) {
+    auto write_span = lfbb_adc.WriteAcquireSpan(data.size());
+    if (!write_span.empty()) {
+        ADC_StartDma(&adc_dma_h, write_span.data(), write_span.size_bytes());
+        write_started = true;
+    }
+} else {
+    if (ADC_PollDmaComplete(&adc_dma_h) {
+        lfbb_adc.WriteRelease(data.size());
+        write_started = false;
+    }
+}
+```
+
 ## Configuration
 The library offers two configuration defines ```LFBB_MULTICORE_HOSTED``` and ```LFBB_CACHELINE_LENGTH``` that can be passed by the build system or defined before including the library if the configuration isn't suitable.
 
