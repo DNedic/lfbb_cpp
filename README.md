@@ -64,6 +64,7 @@ if (!write_started) {
 ```
 
 There is also a `std::span` based API for those using C++20 and up:
+* Consumer thread/interrupt
 ```cpp
 auto read = lfbb_adc.ReadAcquireSpan();
 
