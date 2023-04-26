@@ -24,10 +24,10 @@ A bipartite buffer should be used everywhere a ring buffer is used if you want:
 * MIT Licensed
 
 ## Advantages over the C version
-* Type safety, the buffer is type and size templated
+* Type safety, as the buffer is type and size templated
 * Much simpler and less error-prone instantiation
 * Higher performance due to compile-time known size and header-only implementation
-* Encapsulation, the data buffer is now a class member
+* Encapsulation, the data buffer is a class member instead of being passed by a pointer
 
 ## How to get
 There are three main ways to get the library:
