@@ -46,6 +46,7 @@
 
 #include <atomic>
 #include <cstdlib>
+#include <type_traits>
 
 #if __cplusplus >= 202002L
 #include <span>
@@ -64,6 +65,9 @@
 /*************************** TYPES ****************************/
 
 template <typename T, size_t size> class LfBb {
+    static_assert(std::is_trivial<T>::value, "The type T must be trivial");
+    static_assert(size > 2, "Buffer size must be bigger than 2");
+
     /********************** PUBLIC METHODS ************************/
   public:
     LfBb();
