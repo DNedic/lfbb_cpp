@@ -56,7 +56,7 @@ T *LfBb<T, size>::WriteAcquire(const size_t free_required) {
     const size_t w = _w.load(std::memory_order_relaxed);
     const size_t r = _r.load(std::memory_order_acquire);
 
-    const size_t free = GetFree(w, r);
+    const size_t free = CalcFree(w, r);
     const size_t linear_space = size - r;
     const size_t linear_free = std::min(free, linear_space);
 
@@ -188,7 +188,7 @@ void LfBb<T, size>::ReadRelease(const std::span<T> read) {
 /********************* PRIVATE METHODS ************************/
 
 template <typename T, size_t size>
-size_t LfBb<T, size>::GetFree(const size_t w, const size_t r) {
+size_t LfBb<T, size>::CalcFree(const size_t w, const size_t r) {
     if (r > w) {
         return (r - w) - 1U;
     } else {
