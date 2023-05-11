@@ -35,6 +35,8 @@ There are three main ways to get the library:
 * As a [git submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules)
 * By downloading a release from GitHub
 
+> Note: LFBB_CPP is a part of [lockfree](https://github.com/DNedic/lockfree)
+
 ## How to use
 Shown here is an example of typical use:
 * Consumer thread/interrupt
