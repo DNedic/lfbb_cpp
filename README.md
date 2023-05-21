@@ -1,6 +1,8 @@
 # LFBB_CPP - Lock Free Bipartite Buffer
 ![CMake](https://github.com/DNedic/lfbb_cpp/actions/workflows/.github/workflows/cmake.yml/badge.svg)
 
+> **LFBB_CPP is now a part of [lockfree](https://github.com/DNedic/lockfree), this repository has been locked and is not maintained separately anymore**
+
 LFBB_CPP is the C++ version of [LFBB](https://github.com/DNedic/lfbb), a bipartite buffer implementation written in standard C++11, suitable for all platforms, from deeply embedded to HPC uses. It is lock-free for single consumer single producer scenarios making it incredibly performant and easy to use.
 
 ## What is a bipartite buffer
@@ -34,8 +36,6 @@ There are three main ways to get the library:
 * Using CMake [FetchContent()](https://cmake.org/cmake/help/latest/module/FetchContent.html)
 * As a [git submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules)
 * By downloading a release from GitHub
-
-> Note: LFBB_CPP is a part of [lockfree](https://github.com/DNedic/lockfree)
 
 ## How to use
 Shown here is an example of typical use:
